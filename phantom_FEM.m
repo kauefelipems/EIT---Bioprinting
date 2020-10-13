@@ -1,9 +1,9 @@
-%% Phantom configuration
+%% Phantom FEM generation (based on Wu et al., 2020)
 close all
 
 %Mesh Settings
-ele_mesh = .1e-3;
-mesh = 1e-3;
+ele_mesh = .05e-3;
+mesh = .5e-3;
 spher_mesh = .5e-3;
 
 %Electrodes
@@ -18,12 +18,13 @@ height = 7e-3;
 
 %Sample Shape
 spher_rad = diam/20;
-spher_x = 0;
-spher_y = 3e-3;
+rad_pos = 3e-3;
+spher_x = rad_pos*cos(pi/4);
+spher_y = rad_pos*sin(pi/4);
 spher_z = spher_rad;
 
 %Conductivities
-spher_cond = 0.8; 
+spher_cond = 0.01; 
 media_cond = 1;
 
 %Defining homogeneous shape using NetGen primitives
@@ -54,14 +55,17 @@ elec_shape=[elec_rad*ones(n_elec,1), 0*ones(n_elec,1), ele_mesh*ones(n_elec,1); 
 elec_obj = 'bottom';
 
 %Generating FEM models using NetGen
-fmdl = ng_mk_gen_models(shape_hom, elec_pos, elec_shape, elec_obj);
+fmdl1 = ng_mk_gen_models(shape_hom, elec_pos, elec_shape, elec_obj);
 fmdl2 = ng_mk_gen_models(shape_inh, elec_pos, elec_shape, elec_obj);
 
-%Defining center electrode as ground
-fmdl.gnd_node = fmdl.electrode(17).nodes;
+%Defining center electrode as ground and removing it 
+%from electrode array (to not be counted during stimulation)
+fmdl1.gnd_node = fmdl1.electrode(17).nodes;
 fmdl2.gnd_node = fmdl2.electrode(17).nodes;
+fmdl1.electrode = fmdl1.electrode(1:end-1); 
+fmdl2.electrode = fmdl2.electrode(1:end-1); 
 
 %Plotting models
-show_fem(fmdl);
+show_fem(fmdl1);
 figure
 show_fem(fmdl2);
