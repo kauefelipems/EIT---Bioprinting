@@ -1,3 +1,4 @@
+function [fmdl1, fmdl2] = phantom_FEM(n_elec)
 %% Phantom FEM generation (based on Wu et al., 2020)
 close all
 
@@ -7,7 +8,6 @@ mesh = .5e-3;
 spher_mesh = .5e-3;
 
 %Electrodes
-n_elec = 16;
 elec_rad = 0.48e-3;
 gnd_rad = 0.2e-3;
 offset = elec_rad;
@@ -22,10 +22,6 @@ rad_pos = 3e-3;
 spher_x = rad_pos*cos(pi/4);
 spher_y = rad_pos*sin(pi/4);
 spher_z = spher_rad;
-
-%Conductivities
-spher_cond = 0.01; 
-media_cond = 1;
 
 %Defining homogeneous shape using NetGen primitives
 shape_hom = [strcat('solid cyl = cylinder (0,0,0; 0,0,1; ', num2str(diam/2), '); \n'), ...
@@ -65,7 +61,4 @@ fmdl2.gnd_node = fmdl2.electrode(17).nodes;
 fmdl1.electrode = fmdl1.electrode(1:end-1); 
 fmdl2.electrode = fmdl2.electrode(1:end-1); 
 
-%Plotting models
-show_fem(fmdl1);
-figure
-show_fem(fmdl2);
+end

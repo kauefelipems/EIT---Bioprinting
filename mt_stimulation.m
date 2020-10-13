@@ -7,8 +7,13 @@ testbench_path = [mydir '\\TESTBENCH files'];
 pspice_output_path = [mydir '\\PSPICE files'];
 
 %% Simulate ideal phantom data
+n_elec = 16;
+[fmdl1, fmdl2] = phantom_FEM(n_elec);
 
-run(which('phantom_FEM')) %%run phantom
+%Plotting models
+show_fem(fmdl1);
+figure
+show_fem(fmdl2);
 
 %Stimulus settings
 amp_ideal = 0.5e-3;
@@ -29,7 +34,9 @@ fmdl2.system_mat= 'system_mat_1st_order';
 fmdl2.jacobian = 'jacobian_adjoint'; %for sensitivity matrix
 
 % create homogeneous image + simulated data
-hom_img = mk_image( fmdl1, media_cond); 
+spher_cond = 0.01; 
+media_cond = 1; %Conductivities
+hom_img = mk_image( fmdl2, media_cond); 
 inh_img = mk_image( fmdl2, media_cond); %media conductivity
 inh_img.elem_data(fmdl2.mat_idx{1}) = spher_cond; %spheroid conductivity
 
@@ -45,13 +52,17 @@ plot(hom_idealdata.meas-inh_idealdata.meas)
 
 %% Simulate differential foward potentials
 
-%run(which('potential_imgs')) %%run phantom
-%run(which('sensitivity_imgs')) %%run phantom
+[hom_img_v, diff_img_v] = potential_imgs(hom_img, inh_img, hom_idealdata, inh_idealdata, 7e-3);
+J = sensitivity_imgs(hom_img, 7e-3);
 
 %% Solve inverse problem
 
-run(which('phantom_FEM_inv')) %coard matrix for the inverse
-                        
+fmdl_inv = phantom_FEM_inv(n_elec);
+
+%Plotting models
+figure
+show_fem(fmdl_inv);
+
 %Setting stimulation for homogeneous phantom
 fmdl_inv.stimulation = stim;
 fmdl_inv.solve=      'fwd_solve_1st_order';

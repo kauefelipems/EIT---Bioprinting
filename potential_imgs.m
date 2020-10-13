@@ -1,3 +1,5 @@
+function [hom_img_v, diff_img_v] = potential_imgs(hom_img, inh_img, hom_idealdata, inh_idealdata, z_height)
+
 %% Image structures
 hom_img_v = rmfield(hom_img,'elem_data');
 diff_img_v = rmfield(inh_img,'elem_data');
@@ -5,7 +7,7 @@ inh_img_g = inh_img; %for reference
 
 %% Fixed z_cross, varying injection
 n_injections = length(hom_img_v.fwd_model.stimulation);
-slice_lvl = height*0.1;
+slice_lvl = z_height*0.1;
 
 %% Fixed injection, varying z_cross
 fix_inj = 13;
@@ -43,14 +45,14 @@ show_slices(inh_img_g,[inf,inf,slice_lvl])
 %% PLOTS: Fixed injection, varying z_cross
 
 figure
-for slice_lvl = (1/n_plots:1/n_plots:1)*height 
-    subplot(floor(sqrt(n_plots)),ceil(sqrt(n_plots)),round(n_plots*slice_lvl/height))
+for slice_lvl = (1/n_plots:1/n_plots:1)*z_height 
+    subplot(floor(sqrt(n_plots)),ceil(sqrt(n_plots)),round(n_plots*slice_lvl/z_height))
     show_slices(diff_img_v,[inf,inf,slice_lvl]) 
 end
 
 figure %conductivity reference
-for slice_lvl = (1/n_plots:1/n_plots:1)*height 
-    subplot(ceil(sqrt(n_plots)),ceil(sqrt(n_plots)),round(n_plots*slice_lvl/height))
+for slice_lvl = (1/n_plots:1/n_plots:1)*z_height 
+    subplot(ceil(sqrt(n_plots)),ceil(sqrt(n_plots)),round(n_plots*slice_lvl/z_height))
     show_slices(inh_img_g,[inf,inf,slice_lvl]) 
 end
 
@@ -86,6 +88,6 @@ for angle = 0:(2*pi)/n_rot:2*pi*(1-1/n_rot)
     show_slices(inh_img_g,[inf,0,inf]) 
 end
 
-
+end
 
 

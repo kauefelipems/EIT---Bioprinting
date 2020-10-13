@@ -1,11 +1,10 @@
-%% Phantom FEM generation (for inverse problem) (based on Wu et al., 2020)
-
+function fmdl_inv = phantom_FEM_inv(n_elec)
+%% Phantom FEM generation for inverse problem(based on Wu et al., 2020)
 %Mesh Settings
 ele_mesh_inv = .5e-3;
 mesh_inv = 5e-3;
 
 %Electrodes
-n_elec = 16;
 elec_rad = 0.48e-3;
 gnd_rad = 0.2e-3;
 offset = elec_rad;
@@ -41,7 +40,4 @@ fmdl_inv = ng_mk_gen_models(shape_hom, elec_pos, elec_shape, elec_obj);
 fmdl_inv.gnd_node = fmdl_inv.electrode(17).nodes;
 fmdl_inv.electrode = fmdl_inv.electrode(1:end-1); 
 
-%Plotting models
-figure
-show_fem(fmdl_inv);
-
+end
