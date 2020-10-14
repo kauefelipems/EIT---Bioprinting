@@ -1,8 +1,8 @@
 function fmdl_inv = phantom_FEM_inv(n_elec)
 %% Phantom FEM generation for inverse problem(based on Wu et al., 2020)
 %Mesh Settings
-ele_mesh_inv = .5e-3;
-mesh_inv = 5e-3;
+ele_mesh_inv = .3e-3;
+mesh_inv = 3e-3;
 
 %Electrodes
 elec_rad = 0.48e-3;

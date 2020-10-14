@@ -18,7 +18,7 @@ height = 7e-3;
 
 %Sample Shape
 spher_rad = diam/20;
-rad_pos = 3e-3;
+rad_pos = 5e-3;
 spher_x = rad_pos*cos(pi/4);
 spher_y = rad_pos*sin(pi/4);
 spher_z = spher_rad;
