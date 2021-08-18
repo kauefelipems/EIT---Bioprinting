@@ -3,7 +3,7 @@
 % Create path_list for stimualtion files
 path_list = {};
 testbench_path = 'C:\\Users\\DELL\\Documents\\MATLAB\\Master Thesis\\stimulus';
-UTOM_path = 'C:\\Users\\DELL\\Documents\\MATLAB\\Master Thesis\\stimulus';
+UTOM_path = 'C:\\Users\\DELL\\Documents\\MATLAB\\Master Thesis\\UTOM_FILES';
 
 % Signal parameters (f = fsignal)
 v_amp = 1.65;
@@ -72,6 +72,5 @@ eidors_msg(['saved PATHS to ' PWL_paths]);
 
 %% Create output file for the μ-TOM interface switching manager
 
-switching_file = [UTOM_path '\\SWITCHING_UTOM.txt'];
-
-
+switching_file = [UTOM_path '\\UTOM_SW.txt'];
+writematrix(switch_matrix, switching_file)
