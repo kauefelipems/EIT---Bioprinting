@@ -1,12 +1,22 @@
 %% Serial Read Callback
 function uTOM_DataSerialCallback(src,~)
-    global serial_data;
-    global ready_flag;
-    global count;
+    persistent counter;
 
-    raw_data = char(num2cell(readline(src))); %array of chars
-
-    serial_data(count) = uint8(reshape(raw_data, 1, [])); %array of uint8 numbers
+    if isempty(counter)
+        counter = 0;
+    end
     
-    ready_flag = 1;
+    counter = counter + 1;
+
+    display(counter)
+    read_buffer = readline(src);
+    char_string = char(read_buffer);
+    data = uint16(char_string);
+    previous_data = readmatrix('/home/kauefelipems/EIT---Bioprinting/data/UTOM_FILES/UTOM_EIT_Data.txt');
+    writematrix([previous_data, data], '/home/kauefelipems/EIT---Bioprinting/data/UTOM_FILES/UTOM_EIT_Data.txt')
+
+    if (counter == 8)
+        Read_Data;
+        toc
+    end
 end

@@ -12,8 +12,10 @@ options = {'no_meas_current','no_rotate_meas'}; %set stimulation
 %%  Solving Inverse Problem
 
 %Load Data
-meas_hom = homg_expdata.meas;
-meas_inh = inh_expdata.meas;
+% meas_hom = homg_expdata.meas;
+% meas_inh = inh_expdata.meas;
+meas_hom = hom_idealdata.meas;
+meas_inh = inh_idealdata.meas;
 
 %Build Data Structures
 hom_data_real.name = 'Real Homogeneous Data';
@@ -29,7 +31,7 @@ inh_data_real.meas = meas_inh;
 
 % Create different model for reconstruction
 %% Model #1: Simple
-params= mk_circ_tank(32, [], n_elec ); 
+params= mk_circ_tank(64, [], n_elec ); 
 
 %% Model #2: More Complete Model using ng_mk_cyl_models()
 

@@ -2,8 +2,8 @@
 
 % Create path_list for stimualtion files
 path_list = {};
-testbench_path = 'C:\\Users\\DELL\\Documents\\MATLAB\\Master Thesis\\stimulus';
-UTOM_path = 'C:\\Users\\DELL\\Documents\\MATLAB\\Master Thesis\\UTOM_FILES';
+testbench_path = '/home/kauefelipems/EIT---Bioprinting/data/stimulus';
+UTOM_path = '/home/kauefelipems/EIT---Bioprinting/data/UTOM_FILES';
 
 % Signal parameters (f = fsignal)
 v_amp = 1.65;
@@ -19,7 +19,7 @@ dac_1 = DAC_MODEL(fs, n_bits, full_scale);
 sine_wave = dac_1.sine(fsignal, v_amp, periods);
 
 %Create stimulus file for PWL source
-stimulus_file = [testbench_path '\\DA_output.txt'];
+stimulus_file = [testbench_path '/DA_output.txt'];
 path_list = [path_list, stimulus_file];
 pwl_write(stimulus_file, sine_wave.time, sine_wave.amp)
 
@@ -42,10 +42,10 @@ mux_1 = MUX_CONTROL(mux_on, mux_off, tsampling, tinj, tmeas, tinit);
 %Build mux PWL strings
 for i = 1:ceil(log2(n_elec))
     
-    MUX_IP_file = [testbench_path '\\MUX_IP_' int2str(i) '.txt'];
-    MUX_IM_file = [testbench_path '\\MUX_IM_' int2str(i) '.txt'];
-    MUX_MP_file = [testbench_path '\\MUX_MP_' int2str(i) '.txt'];
-    MUX_MM_file = [testbench_path '\\MUX_MM_' int2str(i) '.txt'];
+    MUX_IP_file = [testbench_path '/MUX_IP_' int2str(i) '.txt'];
+    MUX_IM_file = [testbench_path '/MUX_IM_' int2str(i) '.txt'];
+    MUX_MP_file = [testbench_path '/MUX_MP_' int2str(i) '.txt'];
+    MUX_MM_file = [testbench_path '/MUX_MM_' int2str(i) '.txt'];
 
     path_list = [path_list, MUX_IP_file, MUX_IM_file, MUX_MP_file, MUX_MM_file];
     
@@ -62,7 +62,7 @@ switch_matrix = sw_commands(hom_img.fwd_model);
 
 % The PWL_paths lists all PWL stimulus paths to facilitate the manual
 % source assignment on PSPICE 
-PWL_paths = [testbench_path '\\PWL_paths.txt'];
+PWL_paths = [testbench_path '/PWL_paths.txt'];
 FILE = fopen(PWL_paths, 'wt');
 for i=1:length(path_list)
     fprintf(FILE,[path_list{i} '\n']);
@@ -72,5 +72,5 @@ eidors_msg(['saved PATHS to ' PWL_paths]);
 
 %% Create output file for the μ-TOM interface switching manager
 
-switching_file = [UTOM_path '\\UTOM_SW.txt'];
+switching_file = [UTOM_path '/UTOM_SW.txt'];
 writematrix(switch_matrix, switching_file)

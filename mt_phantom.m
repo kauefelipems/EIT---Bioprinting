@@ -1,5 +1,5 @@
 %% Create phantom data
-netlist_path = 'C:\\Users\\DELL\\Documents\\MATLAB\\Master Thesis\\samples';
+netlist_path = '/home/kauefelipems/EIT---Bioprinting/data/samples';
 
 n_elec = 16;
 fsignal = 10e3; %stimulation frequency
@@ -45,10 +45,10 @@ hom_img.fwd_model.electrode(17).z_contact = hom_img.fwd_model.electrode(16).z_co
 inh_img.fwd_model.electrode(17).nodes = hom_img.fwd_model.gnd_node;
 inh_img.fwd_model.electrode(17).z_contact = hom_img.fwd_model.electrode(16).z_contact;
 
-% % Generating netlist files
-% eit_pspice(hom_img, [netlist_path '\\sp_hom']);
-% eit_pspice(inh_img, [netlist_path '\\sp_inh']);
-% 
-% % Removing ground electrode from the images
-% hom_img.fwd_model.electrode = hom_img.fwd_model.electrode(1:end-1); 
-% inh_img.fwd_model.electrode = inh_img.fwd_model.electrode(1:end-1); 
+% Generating netlist files
+%eit_pspice(hom_img, [netlist_path '\\sp_hom']);
+%eit_pspice(inh_img, [netlist_path '\\sp_inh']);
+
+% Removing ground electrode from the images
+hom_img.fwd_model.electrode = hom_img.fwd_model.electrode(1:end-1); 
+inh_img.fwd_model.electrode = inh_img.fwd_model.electrode(1:end-1); 

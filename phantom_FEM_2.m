@@ -1,4 +1,4 @@
-function [fmdl1, fmdl2] = phantom_FEM(n_elec, rad_pos, spher_rad)
+function [fmdl1, fmdl2] = phantom_FEM_2(n_elec)
 %% Phantom FEM generation (based on Wu et al., 2020)
 close all
 
@@ -13,10 +13,12 @@ gnd_rad = 0.2e-3;
 offset = elec_rad;
 
 %Well Shape
-diam = 19e-3;
+diam = 15e-3;
 height = 7e-3;
 
 %Sample Shape
+spher_rad = diam/20;
+rad_pos = 5e-3;
 spher_x = rad_pos*cos(pi/4);
 spher_y = rad_pos*sin(pi/4);
 spher_z = spher_rad;
