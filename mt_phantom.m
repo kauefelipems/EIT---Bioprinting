@@ -1,9 +1,17 @@
 %% Create phantom data
 netlist_path = '/home/kauefelipems/EIT---Bioprinting/data/samples';
 
+%Well Shape
+diam = 15e-3;
+height = 7e-3;
+
+%Sample Shape
+spher_rad = diam/20;
+rad_pos = 5e-3;
+
 n_elec = 16;
 fsignal = 10e3; %stimulation frequency
-[fmdl1, fmdl2] = phantom_FEM(n_elec); %spheroid phantom (based on Wu et al., 2020)
+[fmdl1, fmdl2] = phantom_FEM(n_elec, rad_pos, spher_rad); %spheroid phantom (based on Wu et al., 2020)
 [spher_cond, media_cond] = MFC7sp_cond(fsignal); % MCF-7 Spheroid Cell Model conductivity 
                                                  %(based on Wu et al., 2020)
 %Plotting models

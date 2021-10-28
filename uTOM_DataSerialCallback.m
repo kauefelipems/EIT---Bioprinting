@@ -12,11 +12,12 @@ function uTOM_DataSerialCallback(src,~)
     read_buffer = readline(src);
     char_string = char(read_buffer);
     data = uint16(char_string);
-    previous_data = readmatrix('/home/kauefelipems/EIT---Bioprinting/data/UTOM_FILES/UTOM_EIT_Data.txt');
-    writematrix([previous_data, data], '/home/kauefelipems/EIT---Bioprinting/data/UTOM_FILES/UTOM_EIT_Data.txt')
+    previous_data = readmatrix('/home/kauefelipems/EIT---Bioprinting/data/UTOM_FILES/UTOM_EIT_Data2.txt');
+    writematrix([previous_data, data], '/home/kauefelipems/EIT---Bioprinting/data/UTOM_FILES/UTOM_EIT_Data2.txt')
 
     if (counter == 8)
         Read_Data;
+        counter = 0;
         toc
     end
 end

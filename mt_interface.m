@@ -1,7 +1,7 @@
 %% Test script to collect EIT data from μ-TOM
 
 UTOM_path = '/home/kauefelipems/EIT---Bioprinting/data/UTOM_FILES';
-EIT_File = [UTOM_path '/UTOM_EIT_Data.txt'];
+EIT_File = [UTOM_path '/UTOM_EIT_Data3.txt'];
 writematrix([], EIT_File);
 clear utom
 
@@ -23,7 +23,7 @@ buff_size = 1000;
 
 
 %PGA
-gain_max = 255;
+gain_max = 20;
 gain = gain_max*ones(n_commands,1);
 gain_mode = "fixed";
 

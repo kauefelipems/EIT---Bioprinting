@@ -14,8 +14,8 @@ options = {'no_meas_current','no_rotate_meas'}; %set stimulation
 %Load Data
 % meas_hom = homg_expdata.meas;
 % meas_inh = inh_expdata.meas;
-meas_hom = hom_idealdata.meas;
-meas_inh = inh_idealdata.meas;
+meas_hom = data_struct.hom;
+meas_inh = data_struct.inh;
 
 %Build Data Structures
 hom_data_real.name = 'Real Homogeneous Data';
@@ -38,7 +38,6 @@ params= mk_circ_tank(64, [], n_elec );
 [stim, meas_select] = mk_stim_patterns(n_elec, n_rings, stim_type,measure_type, ...
                             options, 0.5);
 params.stimulation = stim;
-params.meas_select = meas_select;
 
 %Select FWD Solver to Continue                       
 reply = num2str(input('\n Select FWD Solver:\n(1)1st Order \n(2)1st Order 2p5d best w/ Inverse Solver 1 \n'));
