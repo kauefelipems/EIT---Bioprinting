@@ -1,5 +1,5 @@
-data = readmatrix('/home/kauefelipems/EIT---Bioprinting/data/UTOM_FILES/UTOM_EIT_Data.txt');
-data2 = readmatrix('/home/kauefelipems/EIT---Bioprinting/data/UTOM_FILES/UTOM_EIT_Data2.txt');
+data = readmatrix('/home/kauefelipems/EIT---Bioprinting/data/UTOM_FILES/UTOM_EIT_Data6.txt');
+data2 = readmatrix('/home/kauefelipems/EIT---Bioprinting/data/UTOM_FILES/UTOM_EIT_Data8.txt');
 
 output_data = zeros(1,(length(data))/2);
 output_data2 = zeros(1,(length(data2))/2);
@@ -7,7 +7,7 @@ output_data2 = zeros(1,(length(data2))/2);
 %Build uint16_t data from uint8_t
 for i = 1 : (length(data))/2
     output_data(i) = uint16(data(2*i - 1) + bitshift(data(2*i),8));
-    output_data2(i) = uint16(data(2*i - 1) + bitshift(data2(2*i),8));
+    output_data2(i) = uint16(data2(2*i - 1) + bitshift(data2(2*i),8));
 end
 
 close all
@@ -29,8 +29,8 @@ for i = 1:208
 end
 
 
-data_struct.hom = transpose(treated_data./max(treated_data2));
-data_struct.inh= transpose(treated_data2./max(treated_data2));
+data_struct.hom = transpose(treated_data);
+data_struct.inh= transpose(treated_data2);
 
 figure
 plot(data_struct.hom);
