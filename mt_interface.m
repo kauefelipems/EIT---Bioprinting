@@ -1,72 +1,115 @@
 %% Test script to collect EIT data from μ-TOM
 
-UTOM_path = '/home/kauefelipems/EIT---Bioprinting/data/UTOM_FILES';
-EIT_File = [UTOM_path '/UTOM_EIT_Data13.txt'];
+UTOM_path = '/home/kauefelipems/EIT---Bioprinting/data/UTOM_FILES/';
+
+experiment = input('\n What do you want? (1) Run Protocol (2) Test Channel\n');
+
+FILE_NAME = input('Name the File:','s');
+EIT_File = [UTOM_path FILE_NAME '.txt'];
 writematrix([], EIT_File);
 clear utom
-
-%% Measurement Definitions
-
-%Switching_Stages
-stimulation_pattern = csvread([UTOM_path '/UTOM_SW.txt']);
 
 %Port Communication
 port = "/dev/ttyACM0";
 baudrate = 115200;
-n_commands = length(stimulation_pattern);
+buffer_size = 1024;
 data_bits = 8;
 stop_bits = 1;
 parity = "Odd";
 
-%Measurement Vector
-buff_size = 1000;
-
-
 %PGA
-gain_max = 1;
-gain = gain_max*ones(n_commands,1);
-gain_mode = "fixed";
+gain_max = input('\n Please insert the gain\n');
 
 %Excitation
-freq_in = 10e3;
-n_periods = 5;
-time_meas = n_periods/freq_in;
+freq_sel = input('\n What frequency? (1) 10 kHz (2) 100 kHz\n');
+
+switch(freq_sel)
+    case 1
+        freq = 1e4;
+    case 2 
+        freq = 1e5;
+end
 
 %% Opening serial connection with the device
 
-utom = serialport(port, baudrate, 'DataBits',data_bits,'Parity',parity,'StopBits',stop_bits,"Timeout",60); 
-%% EIT Measurements Loop
+%utom = serialport(port, baudrate, 'DataBits',data_bits,'Parity',parity,'StopBits',stop_bits,"Timeout",60); 
 
-%Configure callback function to read data
-%configureCallback(utom,"terminator", @uTOM_DataSerialCallback)
-%configureTerminator(utom,"CR/LF")
+%% Measurement Definitions
 
-writematrix([], EIT_File);
+switch (experiment)
 
-command = [uint8('P'), 0, 0, 0, 0]; %Write protocol mode
-write(utom, command, "uint8");
+    case 1
 
-for count = 1:n_commands
-    command = gain(count); %Set new channel
-    write(utom, command, "uint8"); 
-    command = stimulation_pattern(count,:);                   %Measure
-    write(utom, command, "uint8");
+        %Protocol Commands
+        stimulation_pattern = csvread([UTOM_path '/UTOM_SW.txt']);
+        n_commands = length(stimulation_pattern);
+        n_bytes = buffer_size*n_commands;
+    
+        %% EIT Measurements
+                  
+        %Header to the File
+        HEADER = [uint8('P'), gain_max, freq_sel]; %MODE, GAIN, FREQUENCY
+
+        command = [uint8('P'), 0, 0, 0, 0]; %Write protocol mode
+        write(utom, command, "uint8");
+        
+        for count = 1:n_commands
+            command = gain(count); %Set new channel
+            write(utom, command, "uint8"); 
+            command = stimulation_pattern(count,:);                   %Measure
+            write(utom, command, "uint8");
+        end
+        
+        command = [uint8('E'), freq_sel, 0, 0, 0]; %Set new channel
+        write(utom, command, "uint8");
+        
+        command = [uint8('R'), 0, 0, 0, 0]; %Set new channel
+        write(utom, command, "uint8");
+        
+        tic
+        data = read(utom,n_bytes,"uint8");
+        toc
+
+    case 2
+
+        n_bytes = buffer_size;
+
+        channel = input('\n What channel?\n');
+
+        %Header to the File
+        HEADER = [uint8('C'), gain_max, freq_sel, channel]; %MODE, GAIN, FREQUENCY, CHANNELS
+
+        command = [uint8('E'), freq_sel, 0, 0, 0]; %Set new channel
+        write(utom, command, "uint8");
+
+        command = [uint8('G'), gain_max, 0, 0, 0]; %Set new channel
+        write(utom, command, "uint8");    
+
+        command = [uint8('S'), channel]; %Set new channel
+        write(utom, command, "uint8");    
+
+        command = [uint8('M'), 0, 0, 0, 0]; %Set new channel
+        write(utom, command, "uint8");    
+
+        tic
+        data = read(utom,n_bytes,"uint8");
+        toc
 end
 
-command = [uint8('E'), 1, 0, 0, 0]; %Set new channel
-write(utom, command, "uint8");
+%% End of Communication and Data Collection
 
-command = [uint8('R'), 0, 0, 0, 0]; %Set new channel
-write(utom, command, "uint8");
+%Collects data
+char_string = uint8(char(data));
+data = uint8(char_string);        
+output_data = zeros(1,(length(data))/2);
 
-tic
-data = read(utom,2*208*1024,"uint8");
-toc
+%Build uint16_t data from uint8_t
+for i = 1 : (length(data))/2
+    output_data(i) = uint16(data(2*i - 1) + bitshift(data(2*i),8));
+end
 
-char_string = char(data);
-data16 = uint16(char_string);
-writematrix(data16, EIT_File);
+%Load to File
+writematrix([HEADER output_data], EIT_File);
 
-%% End of Communication
-
-
+%Frees serialport 
+clear utom;
