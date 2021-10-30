@@ -18,6 +18,9 @@ stop_bits = 1;
 parity = "Odd";
 
 %PGA
+fs = input('\n Please insert the sampling frequency\n');
+
+%PGA
 gain_max = input('\n Please insert the gain\n');
 
 %Excitation
@@ -48,7 +51,7 @@ switch (experiment)
         %% EIT Measurements
                   
         %Header to the File
-        HEADER = [uint8('P'), gain_max, freq_sel]; %MODE, GAIN, FREQUENCY
+        HEADER = [uint8('P'), gain_max, fs, freq_sel]; %MODE, GAIN, SAMPLING FREQUENCY, SIGNAL FREQUENCY
 
         command = [uint8('P'), 0, 0, 0, 0]; %Write protocol mode
         write(utom, command, "uint8");

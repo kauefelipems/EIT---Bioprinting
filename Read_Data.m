@@ -1,47 +1,49 @@
 UTOM_path = '/home/kauefelipems/EIT---Bioprinting/data/UTOM_FILES/';
 
-reading = input('\n What do you want? (1) Read Image Data (2) Read Channel Data\n');
+reading = input('\n What do you want? (1) Read Image Data (2) Read Calibrated Image Data (2) Read Channel Data\n');
+buffer_size = input('\n Insert the buffer size\n');
 
 switch(reading)
 
     case 1
         header_size = 3;
 
-        FILE_NAME = input('Name the First File:','s');
-        EIT_File = [UTOM_path FILE_NAME '.txt'];
-        FILE_NAME2 = input('Name the Second File:','s');
-        EIT_File2 = [UTOM_path FILE_NAME2 '.txt'];
-        
-        read = readmatrix(EIT_File);
-        
-        read2 = readmatrix(EIT_File2);
+        EXP_NAME = input('Name the Experiment:','s');
 
-        header = read(1:header_size);
-        data = read(header_size+1:end);
-        header2 = read(1:header_size);
-        data2 = read(header_size+1:end);
+        HOM_File = [UTOM_path EXP_NAME '_HOM.txt'];
+        INH_File = [UTOM_path EXP_NAME '_INH.txt'];
+        
+        read_hom = readmatrix(HOM_File);
+        read_inh = readmatrix(INH_File);
+
+        header_hom = read_hom(1:header_size);
+        data_hom = read_hom(header_size+1:end);
+        header_inh = read_inh(1:header_size);
+        data_inh = read_inh(header_size+1:end);
 
         close all
         figure
-        plot(data);
+        plot(data_hom);
         hold on
-        plot(data2);
+        plot(data_inh);
 
-        treated_data = zeros(1,n_commands);
-        treated_data2 = zeros(1,n_commands);
+        hom_vector = zeros(1,n_commands);
+        inh_vector = zeros(1,n_commands);
         
+        harm_hom = header_hom(5)*buffer_size/header_hom(4);
+        harm_ihn = header_inh(5)*buffer_size/header_inh(4);
+
         for i = 1:208
             x_value = (i-1)*buffer_size;
-            dft_value1 = 2*fft(data(x_value+1:x_value+buffer_size));
-            dft_value2 = 2*fft(data2((x_value+1:x_value+buffer_size)));
+            dft_hom = 2*fft(data_hom(x_value+1:x_value+buffer_size));
+            dft_ihn = 2*fft(data_inh((x_value+1:x_value+buffer_size)));
         
-            treated_data(i) = abs(dft_value1(6));
-            treated_data2(i) = abs(dft_value2(6));
+            hom_vector(i) = abs(dft_hom(harm_hom));
+            harm_ihn(i) = abs(dft_ihn(harm_ihn));
         end
         
-        
-        data_struct.hom = transpose(treated_data);
-        data_struct.inh= transpose(treated_data2);
+        data_struct.hom = transpose(hom_vector);
+        data_struct.inh= transpose(harm_ihn);
         
         figure
         plot(data_struct.hom);
@@ -49,6 +51,69 @@ switch(reading)
         plot(data_struct.inh);
 
     case 2
+
+        header_size = 3;
+
+        EXP_NAME = input('Name the Experiment:','s');
+
+        HOM_F1_File = [UTOM_path EXP_NAME '_HOM_F1.txt'];
+        HOM_F2_File = [UTOM_path EXP_NAME '_HOM_F2.txt'];
+        INH_F1_File = [UTOM_path EXP_NAME '_INH_F1.txt'];
+        INH_F2_File = [UTOM_path EXP_NAME '_INH_F2.txt'];
+
+        read_hom1 = readmatrix(HOM_F1_File);
+        read_hom2= readmatrix(HOM_F2_File);
+        read_inh1 = readmatrix(INH_F1_File);
+        read_inh2 = readmatrix(INH_F2_File);
+
+        header_hom1 = read_hom1(1:header_size);
+        data_hom1 = read_hom1(header_size+1:end);
+        header_hom2 = read_hom2(1:header_size);
+        data_hom2 = read_hom2(header_size+1:end);
+
+        header_inh1 = read_inh1(1:header_size);
+        data_inh1 = read_inh1(header_size+1:end);
+        header_inh2 = read_inh2(1:header_size);
+        data_inh2 = read_inh2(header_size+1:end);
+
+        close all
+        figure
+        plot(data_hom1);
+        hold on
+        plot(data_inh1);
+        figure
+        plot(data_hom2);
+        hold on
+        plot(data_inh2);
+
+        calib_vector_1 = zeros(1,n_commands);
+        calib_vector_2 = zeros(1,n_commands);
+        
+        harm_hom1 = header_hom1(5)*buffer_size/header_hom1(4);
+        harm_hom2 = header_hom2(5)*buffer_size/header_hom2(4);
+        harm_ihn1 = header_inh1(5)*buffer_size/header_inh1(4);
+        harm_ihn2 = header_inh2(5)*buffer_size/header_inh2(4);
+
+        for i = 1:208
+            x_value = (i-1)*buffer_size;
+            dft_hom1 = 2*fft(data_hom1(x_value+1:x_value+buffer_size));
+            dft_hom2 = 2*fft(data_hom2(x_value+1:x_value+buffer_size));
+            dft_ihn1 = 2*fft(data_ihn2(x_value+1:x_value+buffer_size));
+            dft_ihn2 = 2*fft(data_ihn2(x_value+1:x_value+buffer_size));
+      
+            calib_vector_1(i) = abs(dft_ihn1(harm_ihn1)) - abs(dft_hom1(harm_hom1));
+            calib_vector_2(i) = abs(dft_ihn2(harm_ihn1)) - abs(dft_hom2(harm_hom1));
+        end
+        
+        data_struct.hom = transpose(calib_vector_1);
+        data_struct.inh= transpose(calib_vector_2);
+        
+        figure
+        plot(data_struct.hom);
+        hold on
+        plot(data_struct.inh);
+
+    case 3
 
         header_size = 7;
         FILE_NAME = input('Name the File:','s');
@@ -62,12 +127,13 @@ switch(reading)
         figure
         plot(data);
         
-        dft_value1 = 2*fft(data);
-        treated_data = abs(dft_value1(1:length(dft_value1)/2));
-        
-        data_struct.hom = transpose(treated_data);
+        dft_value = 2*fft(data);
+        harmonics = abs(dft_value(1:length(dft_value)/2));
+        freq = 0:header(4)/buffer_size:header(4)/2;
+
+        harmonics;
         figure
-        plot(data_struct.hom);
+        semilogx(freq,harmonics);
 end
 
 
