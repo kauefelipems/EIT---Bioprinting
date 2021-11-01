@@ -35,7 +35,7 @@ end
 
 %% Opening serial connection with the device
 
-%utom = serialport(port, baudrate, 'DataBits',data_bits,'Parity',parity,'StopBits',stop_bits,"Timeout",60); 
+utom = serialport(port, baudrate, 'DataBits',data_bits,'Parity',parity,'StopBits',stop_bits,"Timeout",60); 
 
 %% Measurement Definitions
 
@@ -51,13 +51,13 @@ switch (experiment)
         %% EIT Measurements
                   
         %Header to the File
-        HEADER = [uint8('P'), gain_max, fs, freq_sel]; %MODE, GAIN, SAMPLING FREQUENCY, SIGNAL FREQUENCY
+        HEADER = [uint8('P'), gain_max, fs/1e6, freq_sel]; %MODE, GAIN, SAMPLING FREQUENCY, SIGNAL FREQUENCY
 
         command = [uint8('P'), 0, 0, 0, 0]; %Write protocol mode
         write(utom, command, "uint8");
         
         for count = 1:n_commands
-            command = gain(count); %Set new channel
+            command = gain_max; %Set new channel
             write(utom, command, "uint8"); 
             command = stimulation_pattern(count,:);                   %Measure
             write(utom, command, "uint8");
@@ -102,8 +102,7 @@ end
 %% End of Communication and Data Collection
 
 %Collects data
-char_string = uint8(char(data));
-data = uint8(char_string);        
+data = uint16(data);
 output_data = zeros(1,(length(data))/2);
 
 %Build uint16_t data from uint8_t

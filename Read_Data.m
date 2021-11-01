@@ -1,6 +1,6 @@
 UTOM_path = '/home/kauefelipems/EIT---Bioprinting/data/UTOM_FILES/';
 
-reading = input('\n What do you want? (1) Read Image Data (2) Read Calibrated Image Data (2) Read Channel Data\n');
+reading = input('\n What do you want? (1) Read Image Data (2) Read Calibrated Image Data (3) Read Channel Data\n');
 buffer_size = input('\n Insert the buffer size\n');
 
 switch(reading)
@@ -30,8 +30,8 @@ switch(reading)
         hom_vector = zeros(1,n_commands);
         inh_vector = zeros(1,n_commands);
         
-        harm_hom = header_hom(5)*buffer_size/header_hom(4);
-        harm_ihn = header_inh(5)*buffer_size/header_inh(4);
+        harm_hom = header_hom(5)*buffer_size/(header_hom(4)*1e6);
+        harm_ihn = header_inh(5)*buffer_size/(header_inh(4)*1e6);
 
         for i = 1:208
             x_value = (i-1)*buffer_size;
@@ -89,10 +89,10 @@ switch(reading)
         calib_vector_1 = zeros(1,n_commands);
         calib_vector_2 = zeros(1,n_commands);
         
-        harm_hom1 = header_hom1(5)*buffer_size/header_hom1(4);
-        harm_hom2 = header_hom2(5)*buffer_size/header_hom2(4);
-        harm_ihn1 = header_inh1(5)*buffer_size/header_inh1(4);
-        harm_ihn2 = header_inh2(5)*buffer_size/header_inh2(4);
+        harm_hom1 = header_hom1(5)*buffer_size/(header_hom1(4)*1e6);
+        harm_hom2 = header_hom2(5)*buffer_size/(header_hom2(4)*1e6);
+        harm_ihn1 = header_inh1(5)*buffer_size/(header_inh1(4)*1e6);
+        harm_ihn2 = header_inh2(5)*buffer_size/(header_inh2(4)*1e6);
 
         for i = 1:208
             x_value = (i-1)*buffer_size;
@@ -119,9 +119,9 @@ switch(reading)
         FILE_NAME = input('Name the File:','s');
         EIT_File = [UTOM_path FILE_NAME '.txt'];
         
-        read = readmatrix(EIT_File);
-        header = read(1:header_size);
-        data = read(header_size+1:end);
+        read_vector = readmatrix(EIT_File);
+        header = read_vector(1:header_size);
+        data = read_vector(header_size+1:end);
 
         close all
         figure
