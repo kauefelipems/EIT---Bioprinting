@@ -198,7 +198,7 @@ reply = num2str(input('\n(1)NP-Inv w/ Prior TV \n(2) GN-1Step \n(3)TV_pdipm,\n(4
                                         options, 0.5);
             fmdl = mdl_normalize(fmdl, 0);                       
             fmdl.normalize_measurements = 1;
-            opt.noise_figure = 0.4;
+            opt.noise_figure = 0.2;
             opt.distr = 2; 
             opt.imgsz = [64 64];
             i_grc = mk_GREIT_model(fmdl,.4,[],opt);
@@ -237,6 +237,7 @@ reply = num2str(input('\n(1)NP-Inv w/ Prior TV \n(2) GN-1Step \n(3)TV_pdipm,\n(4
             inv_BP.solve= @inv_solve_backproj;
             inv_BP.inv_solve_backproj.type= 'naive';
             inv_BP.fwd_model = model_2;
+            inv_BP.fwd_model.meas_select = ones(208,1);
             inv_BP.inv_solve_backproj.type= 'simple_filter';
             % Reconstruct and show image
             figure

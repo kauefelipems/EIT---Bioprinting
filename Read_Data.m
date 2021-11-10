@@ -6,7 +6,7 @@ buffer_size = input('\n Insert the buffer size\n');
 switch(reading)
 
     case 1
-        header_size = 3;
+        header_size = 4;
 
         EXP_NAME = input('Name the Experiment:','s');
 
@@ -30,8 +30,8 @@ switch(reading)
         hom_vector = zeros(1,n_commands);
         inh_vector = zeros(1,n_commands);
         
-        harm_hom = header_hom(5)*buffer_size/(header_hom(4)*1e6);
-        harm_ihn = header_inh(5)*buffer_size/(header_inh(4)*1e6);
+        harm_hom = 10^header_hom(4)*1e3*buffer_size/(header_hom(3)*1e6);
+        harm_ihn = 10^header_inh(4)*1e3*buffer_size/(header_inh(3)*1e6);
 
         for i = 1:208
             x_value = (i-1)*buffer_size;
@@ -39,11 +39,11 @@ switch(reading)
             dft_ihn = 2*fft(data_inh((x_value+1:x_value+buffer_size)));
         
             hom_vector(i) = abs(dft_hom(harm_hom));
-            harm_ihn(i) = abs(dft_ihn(harm_ihn));
+            inh_vector(i) = abs(dft_ihn(harm_ihn));
         end
         
         data_struct.hom = transpose(hom_vector);
-        data_struct.inh= transpose(harm_ihn);
+        data_struct.inh= transpose(inh_vector);
         
         figure
         plot(data_struct.hom);
@@ -52,14 +52,14 @@ switch(reading)
 
     case 2
 
-        header_size = 3;
+        header_size = 4;
 
         EXP_NAME = input('Name the Experiment:','s');
 
-        HOM_F1_File = [UTOM_path EXP_NAME '_HOM_F1.txt'];
-        HOM_F2_File = [UTOM_path EXP_NAME '_HOM_F2.txt'];
-        INH_F1_File = [UTOM_path EXP_NAME '_INH_F1.txt'];
-        INH_F2_File = [UTOM_path EXP_NAME '_INH_F2.txt'];
+        HOM_F1_File = [UTOM_path EXP_NAME '_F1_HOM.txt'];
+        HOM_F2_File = [UTOM_path EXP_NAME '_F2_HOM.txt'];
+        INH_F1_File = [UTOM_path EXP_NAME '_F1_INH.txt'];
+        INH_F2_File = [UTOM_path EXP_NAME '_F2_INH.txt'];
 
         read_hom1 = readmatrix(HOM_F1_File);
         read_hom2= readmatrix(HOM_F2_File);
@@ -89,20 +89,20 @@ switch(reading)
         calib_vector_1 = zeros(1,n_commands);
         calib_vector_2 = zeros(1,n_commands);
         
-        harm_hom1 = header_hom1(5)*buffer_size/(header_hom1(4)*1e6);
-        harm_hom2 = header_hom2(5)*buffer_size/(header_hom2(4)*1e6);
-        harm_ihn1 = header_inh1(5)*buffer_size/(header_inh1(4)*1e6);
-        harm_ihn2 = header_inh2(5)*buffer_size/(header_inh2(4)*1e6);
+        harm_hom1 = 10^header_hom1(4)*buffer_size*1e3/(header_hom1(3)*1e6);
+        harm_hom2 = 10^header_hom2(4)*buffer_size*1e3/(header_hom2(3)*1e6);
+        harm_inh1 = 10^header_inh1(4)*buffer_size*1e3/(header_inh1(3)*1e6);
+        harm_inh2 = 10^header_inh2(4)*buffer_size*1e3/(header_inh2(3)*1e6);
 
         for i = 1:208
             x_value = (i-1)*buffer_size;
             dft_hom1 = 2*fft(data_hom1(x_value+1:x_value+buffer_size));
             dft_hom2 = 2*fft(data_hom2(x_value+1:x_value+buffer_size));
-            dft_ihn1 = 2*fft(data_ihn2(x_value+1:x_value+buffer_size));
-            dft_ihn2 = 2*fft(data_ihn2(x_value+1:x_value+buffer_size));
+            dft_ihn1 = 2*fft(data_inh1(x_value+1:x_value+buffer_size));
+            dft_ihn2 = 2*fft(data_inh2(x_value+1:x_value+buffer_size));
       
-            calib_vector_1(i) = abs(dft_ihn1(harm_ihn1)) - abs(dft_hom1(harm_hom1));
-            calib_vector_2(i) = abs(dft_ihn2(harm_ihn1)) - abs(dft_hom2(harm_hom1));
+            calib_vector_1(i) = abs(dft_ihn1(harm_inh1)) - abs(dft_hom1(harm_hom1));
+            calib_vector_2(i) = abs(dft_ihn2(harm_inh2)) - abs(dft_hom2(harm_hom2));
         end
         
         data_struct.hom = transpose(calib_vector_1);
@@ -115,7 +115,7 @@ switch(reading)
 
     case 3
 
-        header_size = 7;
+        header_size = 8;
         FILE_NAME = input('Name the File:','s');
         EIT_File = [UTOM_path FILE_NAME '.txt'];
         
@@ -129,11 +129,9 @@ switch(reading)
         
         dft_value = 2*fft(data);
         harmonics = abs(dft_value(1:length(dft_value)/2));
-        freq = 0:header(4)/buffer_size:header(4)/2;
-
-        harmonics;
+        freq = 0:1e6*header(3)/buffer_size:1e6*header(3)/2;
         figure
-        semilogx(freq,harmonics);
+        semilogx(freq(1:end-1),harmonics);
 end
 
 

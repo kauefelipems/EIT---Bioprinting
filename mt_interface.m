@@ -12,12 +12,13 @@ clear utom
 %Port Communication
 port = "/dev/ttyACM0";
 baudrate = 115200;
-buffer_size = 1024;
+buffer_size = 1000;
 data_bits = 8;
 stop_bits = 1;
 parity = "Odd";
+uart_delay = 5/1000;
 
-%PGA
+%frequency
 fs = input('\n Please insert the sampling frequency\n');
 
 %PGA
@@ -46,7 +47,7 @@ switch (experiment)
         %Protocol Commands
         stimulation_pattern = csvread([UTOM_path '/UTOM_SW.txt']);
         n_commands = length(stimulation_pattern);
-        n_bytes = buffer_size*n_commands;
+        n_bytes = 2*buffer_size*n_commands;
     
         %% EIT Measurements
                   
@@ -55,17 +56,20 @@ switch (experiment)
 
         command = [uint8('P'), 0, 0, 0, 0]; %Write protocol mode
         write(utom, command, "uint8");
-        
+        pause(uart_delay);
+
         for count = 1:n_commands
             command = gain_max; %Set new channel
             write(utom, command, "uint8"); 
+            pause(uart_delay);
             command = stimulation_pattern(count,:);                   %Measure
             write(utom, command, "uint8");
+            pause(uart_delay);
         end
         
         command = [uint8('E'), freq_sel, 0, 0, 0]; %Set new channel
         write(utom, command, "uint8");
-        
+        pause(uart_delay);
         command = [uint8('R'), 0, 0, 0, 0]; %Set new channel
         write(utom, command, "uint8");
         
@@ -75,22 +79,22 @@ switch (experiment)
 
     case 2
 
-        n_bytes = buffer_size;
+        n_bytes = 2*buffer_size;
 
         channel = input('\n What channel?\n');
 
         %Header to the File
-        HEADER = [uint8('C'), gain_max, freq_sel, channel]; %MODE, GAIN, FREQUENCY, CHANNELS
+        HEADER = [uint8('C'), gain_max, fs/1e6, freq_sel, channel]; %MODE, GAIN, FREQUENCY, CHANNELS
 
         command = [uint8('E'), freq_sel, 0, 0, 0]; %Set new channel
         write(utom, command, "uint8");
-
+        pause(uart_delay);
         command = [uint8('G'), gain_max, 0, 0, 0]; %Set new channel
         write(utom, command, "uint8");    
-
+        pause(uart_delay);
         command = [uint8('S'), channel]; %Set new channel
         write(utom, command, "uint8");    
-
+        pause(uart_delay);
         command = [uint8('M'), 0, 0, 0, 0]; %Set new channel
         write(utom, command, "uint8");    
 
@@ -111,7 +115,7 @@ for i = 1 : (length(data))/2
 end
 
 %Load to File
-writematrix([HEADER output_data], EIT_File);
+writematrix([uint16(HEADER) output_data], EIT_File);
 
 %Frees serialport 
 clear utom;
