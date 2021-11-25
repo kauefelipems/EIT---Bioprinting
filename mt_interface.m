@@ -2,7 +2,7 @@
 
 UTOM_path = '/home/kauefelipems/EIT---Bioprinting/data/UTOM_FILES/';
 
-experiment = input('\n What do you want? (1) Run Protocol (2) Test Channel\n');
+experiment = input('\n What do you want? (1) Run Protocol (2) Test Channel (3) Test Channels\n');
 
 FILE_NAME = input('Name the File:','s');
 EIT_File = [UTOM_path FILE_NAME '.txt'];
@@ -19,7 +19,7 @@ parity = "Odd";
 uart_delay = 5/1000;
 
 %frequency
-fs = input('\n Please insert the sampling frequency\n');
+fs = 2e6;
 
 %PGA
 gain_max = input('\n Please insert the gain\n');
@@ -84,7 +84,7 @@ switch (experiment)
         channel = input('\n What channel?\n');
 
         %Header to the File
-        HEADER = [uint8('C'), gain_max, fs/1e6, freq_sel, channel]; %MODE, GAIN, FREQUENCY, CHANNELS
+        HEADER = [uint8('C'), gain_max, fs/1e6, freq_sel]; %MODE, GAIN, FREQUENCY
 
         command = [uint8('E'), freq_sel, 0, 0, 0]; %Set new channel
         write(utom, command, "uint8");
@@ -101,6 +101,39 @@ switch (experiment)
         tic
         data = read(utom,n_bytes,"uint8");
         toc
+
+    case 3
+
+        stimulation_pattern = csvread([UTOM_path '/CHANNELS_SW.txt']);
+        n_commands = length(stimulation_pattern);
+        n_bytes = 2*buffer_size;
+        data = zeros(1,n_bytes*n_commands);
+
+        command = [uint8('E'), freq_sel, 0, 0, 0]; %Set new channel
+        write(utom, command, "uint8");
+        pause(uart_delay);
+        command = [uint8('G'), gain_max, 0, 0, 0]; %Set new channel
+        write(utom, command, "uint8");    
+        pause(uart_delay);
+
+        for i = 1:n_commands
+            
+            channel = stimulation_pattern(i,:);
+    
+            %Header to the File
+            HEADER = [uint8('C'), gain_max, fs/1e6, freq_sel]; %MODE, GAIN, FREQUENCY
+    
+            command = [uint8('S'), channel]; %Set new channel
+            write(utom, command, "uint8");    
+            pause(uart_delay);
+            command = [uint8('M'), 0, 0, 0, 0]; %Set new channel
+            write(utom, command, "uint8");    
+    
+            tic
+            data(1+(i-1)*n_bytes:i*n_bytes) = read(utom,n_bytes,"uint8");
+            toc
+        end
+
 end
 
 %% End of Communication and Data Collection

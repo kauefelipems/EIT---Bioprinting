@@ -1,7 +1,8 @@
 UTOM_path = '/home/kauefelipems/EIT---Bioprinting/data/UTOM_FILES/';
 
-reading = input('\n What do you want? (1) Read Image Data (2) Read Calibrated Image Data (3) Read Channel Data\n');
-buffer_size = input('\n Insert the buffer size\n');
+reading = input('\n What do you want? (1) Read Image Data (2) Read Calibrated Image Data (3) Read Channels Data\n');
+buffer_size = 1000;
+n_commands = 208;
 
 switch(reading)
 
@@ -30,8 +31,8 @@ switch(reading)
         hom_vector = zeros(1,n_commands);
         inh_vector = zeros(1,n_commands);
         
-        harm_hom = 10^header_hom(4)*1e3*buffer_size/(header_hom(3)*1e6);
-        harm_ihn = 10^header_inh(4)*1e3*buffer_size/(header_inh(3)*1e6);
+        harm_hom = 10^header_hom(4)*1e3*buffer_size/(header_hom(3)*1e6)+1;
+        harm_ihn = 10^header_inh(4)*1e3*buffer_size/(header_inh(3)*1e6)+1;
 
         for i = 1:208
             x_value = (i-1)*buffer_size;
@@ -42,8 +43,8 @@ switch(reading)
             inh_vector(i) = abs(dft_ihn(harm_ihn));
         end
         
-        data_struct.hom = transpose(hom_vector);
-        data_struct.inh= transpose(inh_vector);
+        data_struct.hom = transpose(hom_vector)./max(hom_vector);
+        data_struct.inh= transpose(inh_vector)./max(inh_vector);
         
         figure
         plot(data_struct.hom);
@@ -55,7 +56,6 @@ switch(reading)
         header_size = 4;
 
         EXP_NAME = input('Name the Experiment:','s');
-
         HOM_F1_File = [UTOM_path EXP_NAME '_F1_HOM.txt'];
         HOM_F2_File = [UTOM_path EXP_NAME '_F2_HOM.txt'];
         INH_F1_File = [UTOM_path EXP_NAME '_F1_INH.txt'];
@@ -89,10 +89,10 @@ switch(reading)
         calib_vector_1 = zeros(1,n_commands);
         calib_vector_2 = zeros(1,n_commands);
         
-        harm_hom1 = 10^header_hom1(4)*buffer_size*1e3/(header_hom1(3)*1e6);
-        harm_hom2 = 10^header_hom2(4)*buffer_size*1e3/(header_hom2(3)*1e6);
-        harm_inh1 = 10^header_inh1(4)*buffer_size*1e3/(header_inh1(3)*1e6);
-        harm_inh2 = 10^header_inh2(4)*buffer_size*1e3/(header_inh2(3)*1e6);
+        harm_hom1 = 10^header_hom1(4)*buffer_size*1e3/(header_hom1(3)*1e6)+1;
+        harm_hom2 = 10^header_hom2(4)*buffer_size*1e3/(header_hom2(3)*1e6)+1;
+        harm_inh1 = 10^header_inh1(4)*buffer_size*1e3/(header_inh1(3)*1e6)+1;
+        harm_inh2 = 10^header_inh2(4)*buffer_size*1e3/(header_inh2(3)*1e6)+1;
 
         for i = 1:208
             x_value = (i-1)*buffer_size;
@@ -115,7 +115,7 @@ switch(reading)
 
     case 3
 
-        header_size = 8;
+        header_size = 4;
         FILE_NAME = input('Name the File:','s');
         EIT_File = [UTOM_path FILE_NAME '.txt'];
         
@@ -126,12 +126,18 @@ switch(reading)
         close all
         figure
         plot(data);
-        
-        dft_value = 2*fft(data);
-        harmonics = abs(dft_value(1:length(dft_value)/2));
-        freq = 0:1e6*header(3)/buffer_size:1e6*header(3)/2;
+        harm = 10^header(4)*buffer_size*1e3/(header(3)*1e6);
+        harm_value = zeros(1,length(data)/buffer_size);
+        data = data - mean(data);
+
+        for i = 1:length(data)/buffer_size
+            x_value = (i-1)*buffer_size;
+            dft_hom1 = 2*fft(data(x_value+1:x_value+buffer_size));
+            harm_value(i) = abs(dft_hom1(harm+1));
+        end
+        harm_value = harm_value/max(harm_value);
         figure
-        semilogx(freq(1:end-1),harmonics);
+        plot(1:length(data)/buffer_size, harm_value);
 end
 
 
